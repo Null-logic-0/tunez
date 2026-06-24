@@ -7,12 +7,8 @@ defmodule TunezWeb.Artists.ShowLive do
     {:ok, socket}
   end
 
-  def handle_params(_params, _url, socket) do
-    artist = %{
-      id: "test-artist-1",
-      name: "Artist Name",
-      biography: "Sample biography content here"
-    }
+  def handle_params(%{"id" => artist_id}, _url, socket) do
+    artist = Tunez.Music.get_artist_by_id!(artist_id)
 
     albums = [
       %{
@@ -74,12 +70,13 @@ defmodule TunezWeb.Artists.ShowLive do
     ~H"""
     <div id={"album-#{@album.id}"} class="md:flex gap-8 group">
       <div class="mx-auto mb-6 md:mb-0 w-2/3 md:w-72 lg:w-96">
-        <.cover_image image={@album.cover_image_url} />
+        <%!-- <.cover_image image={@album.cover_image_url} /> --%>
       </div>
       <div class="flex-1">
         <.header class="pl-3 pr-2 !m-0">
           <.h2>
-            {@album.name} ({@album.year_released})
+            <%!-- {@album.name} ({@album.year_released}) --%>
+            {@album.name}
           </.h2>
           <:action>
             <.button_link
@@ -152,7 +149,24 @@ defmodule TunezWeb.Artists.ShowLive do
   end
 
   def handle_event("destroy-artist", _params, socket) do
-    {:noreply, socket}
+    case Tunez.Music.destroy_artist(socket.assigns.artist) do
+      :ok ->
+        socket =
+          socket
+          |> put_flash(:info, "Artist deleted successfully!")
+          |> push_navigate(to: ~p"/")
+
+        {:noreply, socket}
+
+      {:error, error} ->
+        Logger.info("Could not delete artist #{socket.assigns.artist.id}: #{inspect(error)}")
+
+        socket =
+          socket
+          |> put_flash(:error, "Could not delete #{socket.assigns.artist.name}")
+
+        {:noreply, socket}
+    end
   end
 
   def handle_event("destroy-album", _params, socket) do
