@@ -117,7 +117,7 @@ defmodule Tunez.Generator do
   - `:user_id` - Specify the user ID for the notification
   - `:album_id` - Specify the album ID for the notification
   """
-  def notification(opts \\ []) do
+  def notification(_opts \\ []) do
     raise "Uncomment the `notification` generator content in `test/support/generator.ex` (and remove this line)"
     # user_id = opts[:user_id] || once(:default_user_id, fn -> generate(user()).id end)
     # album_id = opts[:album_id] || once(:default_album_id, fn -> generate(album()).id end)
@@ -139,7 +139,7 @@ defmodule Tunez.Generator do
   - `:album_id` - Specify the album ID for the track
 
   """
-  def track(opts \\ []) do
+  def track(_opts \\ []) do
     raise "Uncomment the `track` generator content in `test/support/generator.ex` (and remove this line)"
     # actor = opts[:actor] || once(:default_actor, fn -> generate(user(role: :admin)) end)
     # album_id = opts[:album_id] || once(:default_album_id, fn -> generate(album()).id end)
@@ -177,7 +177,7 @@ defmodule Tunez.Generator do
 
   - `:role` - Specify a role to give the created user. Defaults to `:user`.
   """
-  def user(opts \\ []) do
+  def user(_opts \\ []) do
     raise "Uncomment the `user` generator content in `test/support/generator.ex` (and remove this line)"
     # changeset_generator(
     #   Tunez.Accounts.User,
