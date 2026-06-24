@@ -49,7 +49,9 @@ defmodule Tunez.Music.Album do
       allow_nil? false
     end
 
-    attribute :cover_image_url, :string
+    attribute :cover_image_url, :string do
+      public? true
+    end
 
     create_timestamp :inserted_at
     update_timestamp :updated_at

@@ -7,12 +7,24 @@ defmodule Tunez.Music.Artist do
   postgres do
     table "artists"
     repo Tunez.Repo
+
+    custom_indexes do
+      index "name gin_trgm_ops", name: "artists_name_gin_index", using: "GIN"
+    end
   end
 
   actions do
-    # read :read do
-    #   primary? true
-    # end
+    read :search do
+      argument :query, :ci_string do
+        constraints allow_empty?: true
+        default ""
+      end
+
+      filter expr(contains(name, ^arg(:query)))
+      pagination offset?: true, default_limit: 10
+
+      # prepare build(load: [:album_count, :latest_album_year_released, :cover_image_url])
+    end
 
     create :create do
       accept [:name, :biography]
@@ -35,6 +47,7 @@ defmodule Tunez.Music.Artist do
 
     attribute :name, :string do
       allow_nil? false
+      public? true
     end
 
     attribute :previous_names, {:array, :string} do
@@ -43,13 +56,40 @@ defmodule Tunez.Music.Artist do
 
     attribute :biography, :string
 
-    create_timestamp :inserted_at
-    update_timestamp :updated_at
+    create_timestamp :inserted_at, public?: true
+    update_timestamp :updated_at, public?: true
   end
 
   relationships do
     has_many :albums, Tunez.Music.Album do
       sort year_released: :desc
+    end
+  end
+
+  # calculations do
+  #   calculate :years_ago, :integer, expr(2026 - year_released)
+
+  #   calculate :string_years_ago,
+  #             :string,
+  #             expr("wow,this was released " <> years_ago <> " years ago!")
+
+  #   calculate :album_count, :integer, expr(count(albums))
+  #   calculate :latest_album_year_released, :integer, expr(first(albums, field: :year_released))
+
+  #   calculate :cover_image_url, :string, expr(first(albums, field: :cover_image_url))
+  # end
+
+  aggregates do
+    count :album_count, :albums do
+      public? true
+    end
+
+    first :latest_album_year_released, :albums, :year_released do
+      public? true
+    end
+
+    first :cover_image_url, :albums, :cover_image_url do
+      public? true
     end
   end
 end

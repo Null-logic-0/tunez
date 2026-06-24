@@ -7,7 +7,15 @@ defmodule Tunez.Music do
 
   resources do
     resource Tunez.Music.Artist do
-      define :read_artist, action: :read
+      define :read_artists, action: :read
+
+      define :search_artists,
+        action: :search,
+        args: [:query],
+        default_options: [
+          load: [:album_count, :latest_album_year_released, :cover_image_url]
+        ]
+
       define :get_artist_by_id, action: :read, get_by: :id
       define :create_artist, action: :create
       define :update_artist, action: :update
