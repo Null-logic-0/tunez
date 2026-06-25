@@ -6,8 +6,14 @@ defmodule TunezWeb.Artists.FormLive do
   end
 
   def handle_params(%{"id" => artist_id}, _uri, socket) do
-    artist = Tunez.Music.get_artist_by_id!(artist_id)
-    form = Tunez.Music.form_to_update_artist(artist)
+    artist = Tunez.Music.get_artist_by_id!(artist_id, actor: socket.assigns.current_user)
+
+    form =
+      Tunez.Music.form_to_update_artist(
+        artist,
+        actor: socket.assigns.current_user
+      )
+      |> AshPhoenix.Form.ensure_can_submit!()
 
     socket =
       socket
@@ -18,7 +24,9 @@ defmodule TunezWeb.Artists.FormLive do
   end
 
   def handle_params(_params, _uri, socket) do
-    form = Tunez.Music.form_to_create_artist()
+    form =
+      Tunez.Music.form_to_create_artist(actor: socket.assigns.current_user)
+      |> AshPhoenix.Form.ensure_can_submit!()
 
     socket =
       socket
